@@ -36,6 +36,7 @@ done
 
 export VISUAL=vim
 export EDITOR=vim
+export GOPATH=$HOME/go
 
 # use Vim key bindings
 bindkey -v
@@ -49,9 +50,9 @@ case "`uname -s`" in
     alias ls="ls -G"
     alias l="ls -GF"
 
-    # use jdk 7 by default:
+    # use jdk 8 by default:
     # http://stackoverflow.com/questions/12757558/installed-java-7-on-mac-os-x-but-terminal-is-still-using-version-6#comment21605776_12757565
-    export JAVA_HOME=$(/usr/libexec/java_home -v 1.7)
+    export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 
     # homebrew
     PATH="/usr/local/bin:$PATH"
@@ -185,6 +186,10 @@ function gw {
 function precmd() {
   local tab_label=${PWD/${HOME}/\~} # use 'relative' path
   echo -ne "\e]2;${tab_label}\a" # set window title to full string
+}
+
+function tree {
+  find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
 }
 
 ################################################################################

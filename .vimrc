@@ -1,5 +1,55 @@
-" *** sets, augroups ***
+
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" " alternatively, pass a path where Vundle should install plugins
+" "call vundle#begin('~/some/path/here')
+"
+" " let Vundle manage Vundle, required
+ Plugin 'gmarik/Vundle.vim'
+"
+" " The following are examples of different formats supported.
+" " Keep Plugin commands between vundle#begin/end.
+" " plugin on GitHub repo
+ Plugin 'tpope/vim-fugitive'
+" " plugin from http://vim-scripts.org/vim/scripts.html
+ Plugin 'L9'
+" " Git plugin not hosted on GitHub
+ Plugin 'git://git.wincent.com/command-t.git'
+" " git repos on your local machine (i.e. when working on your own plugin)
+ Plugin 'file:///home/gmarik/path/to/plugin'
+" " The sparkup vim script is in a subdirectory of this repo called vim.
+" " Pass the path to set the runtimepath properly.
+ Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+" " Avoid a name conflict with L9
+ Plugin 'user/L9', {'name': 'newL9'}
+
+ " you complet me with vundle
+Plugin 'Valloric/YouCompleteMe'
+"
+" " All of your Plugins must be added before the following line
+ call vundle#end()            " required
+ filetype plugin indent on    " required
+" " To ignore plugin indent changes, instead use:
+" "filetype plugin on
+" "
+" " Brief help
+" " :PluginList       - lists configured plugins
+" " :PluginInstall    - installs plugins; append `!` to update or just
+" :PluginUpdate
+" " :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" " :PluginClean      - confirms removal of unused plugins; append `!` to
+" auto-approve removal
+" "
+" " see :h vundle for more details or wiki for FAQ
+" " Put your non-Plugin stuff after this line
+"m *** sets, augroups ***
+"
 syntax on
+
 set relativenumber
 set number
 set nowrap " forces style
@@ -8,11 +58,11 @@ set nosmartindent
 set cindent
 set backspace=indent,eol,start
 set copyindent
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
 set expandtab
-set smarttab " makes you go back 4 when you del from tab
+set smarttab " makes you go back 2 when you del from tab
 set hlsearch " highlight all matches in a file when searching
 set incsearch " incrementally highlight your searches
 set pastetoggle=<f8>
@@ -24,9 +74,7 @@ set title " modifies window to have filename as its title
 set scrolloff=3 " keep the last 3 lines as you're scrolling down
 set shell=/bin/zsh
 set viminfo='10,\"100,:20,%,n~/.viminfo " saves position in files
-if $TMUX == ''
-  set clipboard=unnamed
-endif
+set clipboard=unnamed
 set nocursorline
 set wildmode=longest,full
 set wildmenu
@@ -38,18 +86,6 @@ let mapleader=","
 set mouse=nv " enable mouse for normal and visual modes (not insert!!!)
 set nocompatible
 filetype off
-
-let $VIMHOME = expand("$HOME/.vim")
-let custom_spell_file =
-  \ expand("$VIMHOME/custom-spell/selesse.utf-8.add")
-
-execute "set spellfile=" . custom_spell_file
-
-if !filereadable(custom_spell_file . ".spl")
-  if filereadable(custom_spell_file)
-    silent! execute "mkspell " . custom_spell_file
-  endif
-endif
 
 " save when losing focus
 autocmd FocusLost * :silent! wall
@@ -91,17 +127,20 @@ nnoremap <leader>3 I### <esc>
 nnoremap <leader>4 I#### <esc>
 nnoremap <leader>5 I##### <esc>
 nnoremap <F4> <Esc>:1,$!xmllint --format %<CR>
+"json formating
+nnoremap <F5> <Esc>:%!python -m json.tool<CR>
 nnoremap <F6> :call UpdateTags()
 nnoremap <F7> :NumbersToggle<CR>
 nnoremap ,, <C-^>
 nnoremap <leader>ev :vsplit $MYVIMRC<CR>
 nnoremap <leader>sv :source $MYVIMRC<CR>
-nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
-nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
+nnoremap <leader>" viw<Esc>a"<Esc>hbi"<Esc>lel
+nnoremap <leader>' viw<Esc>a'<Esc>hbi'<Esc>lel
 nnoremap <leader>w :set hlsearch!<CR>
 nnoremap <leader>dw :%s/\v +\n/\r/g<CR><C-o> " when substituting, \r is newline
-nnoremap <leader>sw :call VimuxRunCommand("cd $HOME/git/swmud && ./sendToMud.sh wizards/sead/" . @%)<CR>
-nnoremap / /\v
+nnoremap <leader>sw :call VimuxRunCommand("cd $HOME/git/swlib && ./sendToMud.sh wizards/sead/" . @%)<CR>
+" need to understand thi before undoing it
+"nnoremap / /\v
 nnoremap Y y$
 " swap the word the cursor is on with the next (newlines are okay, punctuation
 " is skipped)
@@ -164,7 +203,7 @@ function! Underline(delimiter)
 endfunction
 
 function! FindParentGit(gitIgnore)
-  let x = system('find-parent-git')
+  let x = system('find_parent_git')
   let x = substitute(x, '\n$', '', '') " removes the newline
 
   " if we find no parent git, return .git
@@ -224,11 +263,64 @@ else
 endif
 " }}}
 
-" Language-specific mappings {{{
-augroup filetype_c_cpp
+" Language-specific mapping for comments {{{
+augroup commenter
   autocmd!
-  autocmd Filetype c nnoremap <leader>r :make<cr>
-  autocmd Filetype cpp nnoremap <leader>r :make<cr>
+  autocmd FileType javascript,java,c nnoremap <buffer> <localleader>c I//<ESC>
+  autocmd FileType python nnoremap <buffer> <localleader>c I#<ESC>
+augroup END
+" }}}
+
+" Language-specific mappings {{{
+augroup filetype_python
+  autocmd!
+  autocmd FileType python nnoremap <leader>r :!python % <CR>
+  autocmd FileType python set tabstop=2
+  autocmd FileType python set shiftwidth=2
+  autocmd FileType python set softtabstop=2
+augroup END
+
+augroup filetype_markdown
+  autocmd!
+  autocmd FileType markdown setlocal textwidth=78
+  autocmd FileType markdown set spell
+augroup END
+
+augroup filetype_lpc
+  autocmd!
+  autocmd BufRead,BufNewFile ~/git/swlib/wizards/sead/* set filetype=lpc
+  autocmd BufRead,BufNewFile ~/git/swlib/wizards/sead/* set tw=78
+augroup END
+
+augroup filetype_js
+  autocmd!
+  autocmd FileType javascript nnoremap <leader>j :call JsBeautify()<CR>
+augroup END
+
+augroup filetype_sh
+  autocmd!
+  autocmd Filetype sh nnoremap <leader>r :!bash %<CR>
+augroup END
+
+augroup filetype_wig
+  autocmd!
+  autocmd FileType wig nnoremap <leader>r :!wiggle % --symbol <CR>
+  autocmd FileType wig nnoremap <leader>m :Silent cd $WIGGLEDIR && make<CR>
+augroup END
+
+augroup filetype_html
+  autocmd!
+  autocmd FileType html :iabbrev </ </<C-X><C-O>
+augroup END
+
+augroup filetype_perl
+  autocmd!
+  autocmd FileType perl nnoremap <F5> :!perl % <CR>
+augroup END
+
+augroup filetype_makefile
+  autocmd!
+  autocmd Filetype make setlocal noexpandtab
 augroup END
 
 augroup filetype_java
@@ -238,66 +330,9 @@ augroup filetype_java
   autocmd Filetype java nnoremap <leader>r :call Compile_And_Run_Java()<CR>
 augroup END
 
-augroup filetype_js
-  autocmd!
-  autocmd FileType javascript nnoremap <leader>j :call JsBeautify()<CR>
-augroup END
-
-augroup filetype_html
-  autocmd!
-  autocmd FileType html :iabbrev </ </<C-X><C-O>
-augroup END
-
-augroup filetype_lpc
-  autocmd!
-  autocmd BufRead,BufNewFile ~/git/swmud/wizards/sead/* set filetype=lpc
-  autocmd BufRead,BufNewFile ~/git/swmud/wizards/sead/* set tw=78
-augroup END
-
-augroup filetype_makefile
-  autocmd!
-  autocmd Filetype make setlocal noexpandtab
-augroup END
-
-augroup filetype_markdown
-  autocmd!
-  autocmd FileType markdown setlocal textwidth=78
-  autocmd FileType markdown set spell
-augroup END
-
-augroup filetype_perl
-  autocmd!
-  autocmd FileType perl nnoremap <leader>r :!perl % <CR>
-augroup END
-
-augroup filetype_python
-  autocmd!
-  autocmd FileType python nnoremap <leader>r :!python % <CR>
-  autocmd FileType python set tabstop=4
-  autocmd FileType python set shiftwidth=4
-  autocmd FileType python set softtabstop=4
-augroup END
-
-augroup filetype_ruby
-  autocmd!
-  autocmd FileType ruby nnoremap <leader>r :!ruby % <CR>
-  autocmd BufRead,BufNewFile Vagrantfile set filetype=ruby
-augroup END
-
-augroup filetype_sh
-  autocmd!
-  autocmd Filetype sh nnoremap <leader>r :!bash %<CR>
-augroup END
-
 augroup textfiles
   autocmd!
-  autocmd BufRead,BufNewFile *.txt set spell
-augroup END
-
-augroup filetype_wig
-  autocmd!
-  autocmd FileType wig nnoremap <leader>r :!wiggle % --symbol <CR>
-  autocmd FileType wig nnoremap <leader>m :Silent cd $WIGGLEDIR && make<CR>
+  autocmd BufNewFile,BufRead *.txt set spell
 augroup END
 
 function! Create_Java_Template()
@@ -319,6 +354,12 @@ function! Compile_And_Run_Java()
   endif
 endfunction
 
+augroup filetype_c_cpp
+  autocmd!
+  autocmd Filetype c nnoremap <leader>r :make<cr>
+  autocmd Filetype cpp nnoremap <leader>r :make<cr>
+augroup END
+
 " }}}
 
 " Vimscript file settings {{{
@@ -333,22 +374,33 @@ call vundle#rc()
 
 Bundle 'gmarik/vundle'
 
-Bundle 'mhinz/vim-startify'
+Bundle 'benmills/vimux'
+Bundle 'maksimr/vim-jsbeautify'
+" OverCommandLine to preview search & replace
+Bundle 'osyo-manga/vim-over'
 Bundle 'scrooloose/syntastic'
-Bundle 'tpope/vim-repeat'
+Bundle 'Shougo/unite.vim'
+Bundle 'sjl/gundo.vim'
+Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-markdown'
 Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-unimpaired'
-Bundle 'tpope/vim-vinegar'
-Bundle 'Valloric/YouCompleteMe'
+Bundle 'tpope/vim-repeat'
+Bundle 'ujihisa/unite-colorscheme'
 Bundle 'vim-scripts/sudo.vim'
 Bundle 'wincent/Command-T'
 
 " Colorschemes
 Bundle 'altercation/vim-colors-solarized'
-Bundle 'flazz/vim-colorschemes'
 Bundle 'joedicastro/vim-molokai256'
 Bundle 'sjl/badwolf'
 Bundle 'slindberg/vim-colors-smyck'
+
+" Unite settings
+autocmd FileType unite call s:unite_my_settings()
+
+function! s:unite_my_settings()
+  nmap <buffer> <C-c>      i_<Plug>(unite_exit)
+endfunction
 
 " Status line settings {{{
 set statusline=%.40F " write full path to file, max of 40 chars
@@ -358,12 +410,6 @@ set statusline+=\ Buf\=%n " Buffer number
 set statusline+=\ %y " Filetype
 set statusline+=\ char=\[%b\]
 set statusline+=\ %=%l/%L\ (%p%%)\ \  " right align percentages
-
-" Add Syntastic error messages to status line
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
 " }}}
 
 if $TERM == "xterm-256color"
@@ -375,5 +421,13 @@ colorscheme molokai256
 highlight TrailingWhiteSpace ctermbg=red guibg=red
 match TrailingWhiteSpace /\v +\n/
 
-let g:ycm_filetypes_to_completely_ignore = { 'java' : 1 }
+" syntastic
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:ycm_filetypes_to_completely_ignore = {
+      \ 'java' : 1,
+      \ }
+
 let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['java'] }
