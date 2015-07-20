@@ -263,8 +263,11 @@ else
 endif
 " }}}
 
-" Language-specific mapping for comments {{{
-augroup commenter
+" Language-specific mappings {{{
+
+autocmd filetype crontab setlocal nobackup nowritebackup
+
+augroup filetype_c_cpp
   autocmd!
   autocmd FileType javascript,java,c nnoremap <buffer> <localleader>c I//<ESC>
   autocmd FileType python nnoremap <buffer> <localleader>c I#<ESC>
@@ -384,6 +387,8 @@ Bundle 'sjl/gundo.vim'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-markdown'
 Bundle 'tpope/vim-surround'
+Bundle 'tpope/vim-unimpaired'
+Bundle 'tpope/vim-vinegar'
 Bundle 'tpope/vim-repeat'
 Bundle 'ujihisa/unite-colorscheme'
 Bundle 'vim-scripts/sudo.vim'
