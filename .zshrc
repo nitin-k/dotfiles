@@ -36,6 +36,7 @@ done
 
 export VISUAL=vim
 export EDITOR=vim
+export GOPATH=$HOME/go
 
 # use Vim key bindings
 bindkey -v
@@ -184,6 +185,10 @@ function gw {
 function precmd() {
   local tab_label=${PWD/${HOME}/\~} # use 'relative' path
   echo -ne "\e]2;${tab_label}\a" # set window title to full string
+}
+
+function tree {
+  find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
 }
 
 ################################################################################
