@@ -187,10 +187,6 @@ function precmd() {
   echo -ne "\e]2;${tab_label}\a" # set window title to full string
 }
 
-function tree {
-  find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
-}
-
 ################################################################################
 # STARTUP COMMANDS
 ################################################################################
