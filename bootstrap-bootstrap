@@ -12,7 +12,7 @@ function install_build_dependencies() {
     if [ ! -d "$HOME/git/dotfiles" ] ; then
         mkdir -p "$HOME/git"
         cd "$HOME/git"
-        wget https://github.com/selesse/dotfiles/archive/master.zip
+        wget https://github.com/nitin-k/dotfiles/archive/master.zip
         unzip master.zip
         mv dotfiles-master dotfiles
         rm master.zip

@@ -24,7 +24,7 @@ the most important in the repository.
 To bootstrap an Ubuntu environment:
 
 ```bash
-curl -s https://raw.githubusercontent.com/selesse/dotfiles/master/bootstrap-bootstrap | bash
+curl -s https://raw.githubusercontent.com/nitin-k/dotfiles/master/bootstrap-bootstrap | bash
 ```
 
 Or, clone this repository and run the [bootstrap](bootstrap) script.
