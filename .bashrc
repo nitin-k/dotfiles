@@ -7,11 +7,30 @@ fi
 # have current line(s) open up in vim
 set -o vi
 # history file management
-source "$HOME/bin/merge_history.bash" # source http://ptspts.blogspot.ca/2011/03/how-to-automatically-synchronize-shell.html
-source ~/.git-completion.bash
+[ -f "$HOME/bin/merge_history.bash" ] && source "$HOME/bin/merge_history.bash" # source http://ptspts.blogspot.ca/2011/03/how-to-automatically-synchronize-shell.html
+[ -f "$HOME/.git-completion.bash" ] && source $HOME/.git-completion.bash
 export HISTCONTROL=erasedups
 export HISTFILESIZE=10000
 export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S "
+
+color_off='\e[0m'
+black='\e[0;30m'
+red='\e[0;31m'
+green='\e[0;32m'
+yellow='\e[0;33m'
+blue='\e[0;34m'
+purple='\e[0;35m'
+cyan='\e[0;36m'
+white='\e[0;37m'
+
+bblack='\e[1;30m'
+bred='\e[1;31m'
+bgreen='\e[1;32m'
+byellow='\e[1;33m'
+bblue='\e[1;34m'
+bpurple='\e[1;35m'
+bcyan='\e[1;36m'
+bwhite='\e[1;37m'
 
 # OS-specific aliases
 case "`uname -s`" in
@@ -19,28 +38,25 @@ case "`uname -s`" in
     alias ls="ls -G"
     alias l="ls -GF"
 
-    # I don't care about my hostname when I'm on my local mac
-    PS1="[\[\e[1;32m\]\w\[\e[m\]] \$ "
+    PS1="[\[${bgreen}\]\w\[${color_off}\]] \$ "
     PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007"'
     export JAVADIR=/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home
   ;;
   "FreeBSD")
     alias ls="ls -G"
     alias l="ls -GF"
-    PS1='[\[\e[1;32m\]\u\[\e[m\]@\[\e[1;31m\]\h\[\e[m\]][\[\e[1;34m\]\w\[\e[m\]] \$ '
+    PS1="[\[${bgreen}\]\u\[${color_off}\]@\[${bred}\]\h\[{$color_off}\]][\[${bblue}\]\w\[${color_off}\]] \$ "
     if [ "${USER}" == "root" ] ; then
-      PS1='[\[\e[1;33m\]\u\[\e[m\]@\[\e[1;31m\]\h\[\e[m\]][\[\e[1;34m\]\w\[\e[m\]] \$ '
+      PS1"[\[$byellow\]\u\[${color_off}\]@\[${bred}\]\h\[${color_off}\]][\[${bblue}\]\w\[${color_off}\]] \$ "
     fi
     PROMPT_COMMAND='echo -ne "\033]0;${HOSTNAME} - ${PWD}\007"'
   ;;
   *)
     alias ls="ls --color"
     alias l="ls --color -F"
-    alias hb="HandBrakeCLI"
-    PS1='[\[\e[1;32m\]\u\[\e[m\]@\[\e[1;31m\]\h\[\e[m\]][\[\e[1;34m\]\w\[\e[m\]] \$ '
-    # change the color of root
+    PS1="[\[${bgreen}\]\u\[${color_off}\]@\[${bred}\]\h\[${color_off}\]][\[${bblue}\]\w\[${color_off}\]] \$ "
     if [ "${USER}" == "root" ] ; then
-      PS1='[\[\e[1;33m\]\u\[\e[m\]@\[\e[1;31m\]\h\[\e[m\]][\[\e[1;34m\]\w\[\e[m\]] \$ '
+      PS1="[\[${byellow}\]\u\[${color_off}\]@\[${bred}\]\h\[${color_off}\]][\[${bblue}\]\w\[${color_off}\]] \$ "
     fi
     PROMPT_COMMAND='echo -ne "\033]0;${HOSTNAME} - ${PWD}\007"'
     linuxlogo -u 2> /dev/null
@@ -56,12 +72,8 @@ if [ -f "$HOME/.local_aliases" ] ; then
 fi
 
 # dropbox aliases
-alias config="cd ~/git/config"
-alias public="cd ~/Dropbox/Public"
+alias config="cd ~/git/dotfiles"
 
-alias vi="vim"
-alias wig="cd $HOME/git/cs520/git/group-d/wig/src"
-alias duh="du -chs"
 alias diff="colordiff -u"
 export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
 export GREP_OPTIONS="--color"
@@ -69,25 +81,7 @@ export GREP_OPTIONS="--color"
 ################################################################################
 # PATH, ENVIRONMENT VARIABLES
 ################################################################################
-export ANDROID_HOME="$HOME/android-sdks"
-export JAVADIR=/usr/lib/jvm/java-1.7.0-openjdk-i386/jre
-export JOOSDIR=$HOME/git/cs520/public_html/joos
-export CLASSPATH=$JOOSDIR/jooslib.jar:$CLASSPATH
-export WIGDIR=$HOME/git/cs520/public_html/wig
-export WIGGLEDIR=$HOME/git/cs520/git/group-d/wig/src
 
-# Android
-export PATH=$PATH:$ANDROID_HOME:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
-# SableCC
-export PATH=$PATH:$HOME/Dropbox/sablecc-3.6/bin
-
-# Compilers PATH kinks
-export PATH=$JAVADIR/bin:$HOME/git/cs520/git/group-d/joos/scanparse:$JOOSDIR/bin:$PATH:$HOME/git/cs520/git/group-d/wig/src
-
-export PATH=$PATH:$HOME/Dropbox/Spin/Src6.2.2
-
-export EDITOR=vim
-export VISUAL=vim
 HISTSIZE=50000
 HISTFILESIZE=50000
 SSH_ENV="$HOME/.ssh/environment"
@@ -100,7 +94,7 @@ function cd() {
 }
 
 # function for extracting zip/tar files
-function extract () {
+function extract() {
   if [ -f $1 ] ; then
     case $1 in
     *.tar.bz2)  tar xjf $1      ;;
@@ -138,7 +132,7 @@ function test_identities {
   if [ $? -eq 0 ]; then
     ssh-add
     # $SSH_AUTH_SOCK broken so we start a new proper agent
-    if [ $? -eq 2 ];then
+    if [ $? -eq 2 ]; then
       start_agent
     fi
   fi
@@ -167,9 +161,3 @@ if [ "${USER}" != "root" ] ; then
 fi
 
 ls
-
-function tree() {
-  ls -R $@ | grep ":" \
-  | sed -e 's/://' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/' \
-  | less -SFX
-}
