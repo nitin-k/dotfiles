@@ -2,15 +2,31 @@ set clipboard=unnamed
 
 inoremap jk <esc>
 nnoremap ; :
+
 nnoremap ,f :action FindUsages<CR>
 nnoremap ,r :action RenameElement<CR>
 nnoremap ,t :action OpenFile<CR>
 nnoremap ,d :action Debug<CR>
 nnoremap ,g :action Run<CR>
 
+"open shortcuts
+nnoremap ,Q :action GotoClass<CR>
+nnoremap ,q :action GotoFile<CR>
+
+"debuuging shortcuts
+nnoremap ,b :action ToggleLineBreakpoint<CR>
+nnoremap ,e :action EvaluateExpression<CR>
+nnoremap ,w :action Debugger.AddToWatch<CR>
+nnoremap ,E :action GotoNextError<CR>
+
+"navigation
+nnoremap ,B :action Back<CR>
+nnoremap ,F :action Forward<CR>
+
 nnoremap ," viw<esc>a"<esc>hbi"<esc>lel
 nnoremap ,' viw<esc>a'<esc>hbi'<esc>lel
 
 nnoremap ,sv :source ~/.ideavimrc<CR>
 
+set ignorecase smartcase " use caps if any caps used in search
 inoremap <esc> <esc>
