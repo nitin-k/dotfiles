@@ -38,7 +38,7 @@ vpnc_status() {
 hostname=$(uname -s)
 # prompt
 if [ "$hostname" = "Darwin" ] ; then
-  PROMPT='[%{$fg[yellow]%}%50<...<%~%<<%{$reset_color%}]%(?.. (%?%))%(1j. $fg[green]%j%{$reset_color%}.) %(!.#.$) '
+  PROMPT='[%{$fg[cyan]%}%50<...<%~%<<%{$reset_color%}]%(?.. (%?%))%(1j. $fg[green]%j%{$reset_color%}.) %(!.#.$) '
   RPROMPT='$(vpnc_status) $(battery) $(git_prompt_info)'
 else
   PROMPT='[%{$fg[$NCOLOR]%}%B%n%{$fg[white]%}@%{$fg[green]%}%m%{$fg[blue]%}%b%{$reset_color%}] [%{$fg[yellow]%}%50<...<%~%<<%{$reset_color%}]%(?.. (%?%)) %(!.#.$) '
