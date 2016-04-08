@@ -117,10 +117,10 @@ nnoremap <leader>c :Silent echo -n %% \| pbcopy<cr>
 " <leader>g => all files in current git repo EXCEPT gitignored
 " <leader>G => all files in current git repo
 
-map <leader>f :CommandTFlush<cr>\|:CommandT<cr>
-map <leader>F :CommandTFlush<cr>\|:CommandT $HOME<cr>
-map <leader>g :CommandTFlush<cr>\|:CommandT %g<cr>
-map <leader>G :CommandTFlush<cr>\|:CommandT %G<cr>
+map <leader>f :FZF <cr>
+map <leader>F :FZF $HOME<cr>
+map <leader>g :FZF %g<cr>
+map <leader>G :FZF %G<cr>
 
 " *** insert mode mappings ***
 inoremap jk <esc>
@@ -221,6 +221,11 @@ endif
 
 autocmd filetype crontab setlocal nobackup nowritebackup
 
+augroup filetype_coffeescript
+  autocmd!
+  autocmd BufRead,BufNewFile *.coffee set filetype=coffee
+augroup END
+
 augroup filetype_c_cpp
   autocmd!
   autocmd FileType javascript,java,c nnoremap <buffer> <localleader>c I//<ESC>
@@ -287,11 +292,6 @@ augroup filetype_java
   autocmd Filetype java nnoremap <leader>r :call Compile_And_Run_Java()<CR>
 augroup END
 
-augroup textfiles
-  autocmd!
-  autocmd BufNewFile,BufRead *.txt set spell
-augroup END
-
 function! Create_Java_Template()
   let classname = expand("%:r")
   execute "normal ipublic class " . classname . " {"
@@ -311,12 +311,6 @@ function! Compile_And_Run_Java()
   endif
 endfunction
 
-augroup filetype_c_cpp
-  autocmd!
-  autocmd Filetype c nnoremap <leader>r :make<cr>
-  autocmd Filetype cpp nnoremap <leader>r :make<cr>
-augroup END
-
 " }}}
 
 " Vimscript file settings {{{
@@ -331,22 +325,15 @@ call vundle#rc()
 
 Bundle 'gmarik/vundle'
 
-Bundle 'benmills/vimux'
-Bundle 'maksimr/vim-jsbeautify'
-" OverCommandLine to preview search & replace
-Bundle 'osyo-manga/vim-over'
+Bundle 'junegunn/fzf'
+Bundle 'mhinz/vim-startify'
 Bundle 'scrooloose/syntastic'
-Bundle 'Shougo/unite.vim'
-Bundle 'sjl/gundo.vim'
-Bundle 'tpope/vim-fugitive'
-Bundle 'tpope/vim-markdown'
+Bundle 'tpope/vim-repeat'
 Bundle 'tpope/vim-surround'
 Bundle 'tpope/vim-unimpaired'
 Bundle 'tpope/vim-vinegar'
-Bundle 'tpope/vim-repeat'
-Bundle 'ujihisa/unite-colorscheme'
 Bundle 'vim-scripts/sudo.vim'
-Bundle 'wincent/Command-T'
+Bundle 'kchmck/vim-coffee-script'
 
 " Colorschemes
 Bundle 'altercation/vim-colors-solarized'
@@ -380,13 +367,20 @@ colorscheme molokai256
 highlight TrailingWhiteSpace ctermbg=red guibg=red
 match TrailingWhiteSpace /\v +\n/
 
-" syntastic
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:ycm_filetypes_to_completely_ignore = {
-      \ 'java' : 1,
-      \ }
-
+let g:ycm_filetypes_to_completely_ignore = { 'java' : 1 }
 let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['java'] }
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" MULTIPURPOSE TAB KEY
+" Indent if we're at the beginning of a line. Else, do completion.
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! InsertTabWrapper()
+    let col = col('.') - 1
+    if !col || getline('.')[col - 1] !~ '\k'
+        return "\<tab>"
+    else
+        return "\<c-p>"
+    endif
+endfunction
+inoremap <expr> <tab> InsertTabWrapper()
+inoremap <s-tab> <c-n>

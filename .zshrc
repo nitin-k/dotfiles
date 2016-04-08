@@ -1,5 +1,4 @@
 ZSH=$HOME/.oh-my-zsh
-
 ZSH_THEME="aseles"
 
 # Red dots are displayed while waiting for completion
@@ -38,10 +37,33 @@ export VISUAL=vim
 export EDITOR=vim
 export GOPATH=$HOME/go
 
+################################################################################
+# HISTORY
+################################################################################
+HOSTNAME_SHORT=$(hostname -s)
+mkdir -p "${HOME}/.history/$(date +%Y/%m/%d)"
+HISTFILE="${HOME}/.history/$(date +%Y/%m/%d)/$(date +%H.%M.%S)_${HOSTNAME_SHORT}_$$"
+HISTSIZE=65536
+
+load_all_history() {
+    ALL_HISTORY="$HOME/.history/.all-history"
+    [ -f "$ALL_HISTORY" ] && rm -f "$ALL_HISTORY"
+    cat ~/.history/**/*(.) > "$ALL_HISTORY"
+    fc -R "$ALL_HISTORY"
+}
+
+history-incremental-pattern-search-all-history() {
+    load_all_history
+    zle end-of-history
+    zle history-incremental-pattern-search-backward
+}
+zle -N history-incremental-pattern-search-all-history
+
 # use Vim key bindings
 bindkey -v
 bindkey jk vi-cmd-mode
-bindkey '^R' history-incremental-pattern-search-backward
+bindkey '^R' history-incremental-pattern-search-all-history
+bindkey -M isearch '^R' history-incremental-pattern-search-backward
 bindkey '^[p' history-beginning-search-backward
 bindkey '^[n' history-beginning-search-forward
 
@@ -66,11 +88,6 @@ case "`uname -s`" in
     PROMPT_COMMAND='echo -ne "\033]0;${HOSTNAME} - ${PWD}\007"'
   ;;
   *)
-    # Don't be afraid of a little color in your life
-    if [ ! -z "$COLORTERM" ] && [ "$TERM" == "xterm" ] ; then
-      export TERM="xterm-256color"
-    fi
-
     alias ls="ls --color"
     alias l="ls --color -F"
     alias pbcopy='xclip -selection clipboard'
@@ -187,8 +204,44 @@ precmd() {
   echo -ne "\e]2;${tab_label}\a" # set window title to full string
 }
 
+vif() {
+    file=$({ git ls-files -oc --exclude-standard 2>/dev/null || find . -type f } | fzf)
+    if [ ! -z "$file" ] ; then
+        vim $file
+    fi
+}
+
+pass() {
+    lpass ls > /dev/null 2>&1
+
+    if [[ -z "$LPASS_USER" ]] ; then
+        # Zsh-specific way of reading into a variable, see
+        # http://superuser.com/q/555874/363363
+        read "?LastPass username? " LPASS_USER
+    fi
+
+    if [[ $? -ne 0 ]] ; then
+		lpass login $LPASS_USER
+    fi
+
+    id=$(lpass ls | fzf | egrep -o "id: [0-9]+" | sed -e 's/id: //')
+
+    # The ID might be empty (i.e. if we ctrl+c out of the selection)
+    if [[ ! -z "$id" ]] ; then
+        echo "Username:" $(lpass show --username $id)
+        if [[ ! -z "$(lpass show --notes $id)" ]] ; then
+            echo "Notes:" $(lpass show --notes $id)
+        fi
+        lpass show -c --password $id
+        echo ""
+        echo "The password for this account is now copied into your clipboard."
+    fi
+}
+
 ################################################################################
 # STARTUP COMMANDS
 ################################################################################
 
 ls
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh || true
