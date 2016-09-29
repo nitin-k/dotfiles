@@ -26,7 +26,12 @@ nnoremap ,F :action Forward<CR>
 nnoremap ," viw<esc>a"<esc>hbi"<esc>lel
 nnoremap ,' viw<esc>a'<esc>hbi'<esc>lel
 
+"formating
+nnoremap ,l :action ReformatCode<CR>
+
 nnoremap ,sv :source ~/.ideavimrc<CR>
 
 set ignorecase smartcase " use caps if any caps used in search
 inoremap <esc> <esc>
+set relativenumber
+set number
