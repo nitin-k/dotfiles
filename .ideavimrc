@@ -1,3 +1,4 @@
+set incsearch
 set clipboard=unnamed
 
 inoremap jk <esc>

@@ -1,73 +1,104 @@
+### oh-my-zsh {
 ZSH=$HOME/.oh-my-zsh
 ZSH_THEME="aseles"
+
+DISABLE_AUTO_UPDATE=true
+source $ZSH/oh-my-zsh.sh
 
 # Red dots are displayed while waiting for completion
 COMPLETION_WAITING_DOTS="true"
 
 plugins=(ssh-agent tmux vundle)
+### }
 
-setopt extendedglob
-unsetopt nomatch
+### zsh {
+setopt EXTENDEDGLOB
+# Don't fail at the shell level if there's a glob failure. This is useful when
+# doing stuff like $(git log -- */file-that-doesnt-exist-anymore).
+unsetopt NOMATCH
 
-source $ZSH/oh-my-zsh.sh
-
-PATHDIRS=(
+PATH_DIRECTORIES=(
+  $HOME/bin
   /usr/bin
   /bin
   /usr/sbin
   /sbin
   /usr/local/bin
   /usr/local/sbin
-  /usr/X11/bin
-  /usr/lib/jvm/java-1.7.0-openjdk-i386/jre/bin
-  $HOME/bin
-  $HOME/android-sdks/tools
-  $HOME/android-sdks/platform-tools
-  $HOME/.rvm/bin
-  $HOME/git/gradle-1.8/bin
 )
 
-for dir in $PATHDIRS; do
-  if [ -d "$dir" ]; then
-    PATH+=$dir:
+for directory in $PATH_DIRECTORIES; do
+  if [ -d "$directory" ]; then
+    PATH+=":$directory"
   fi
 done
 
+# Use Vim key bindings to edit the current shell command
+bindkey -v
+bindkey jk vi-cmd-mode
+
+# Execute a command if a particular program exists
+if_program_installed() {
+    program=$1
+    shift
+    which "$program" > /dev/null && eval $* || true
+}
+### }
+
+### editor {
 export VISUAL=vim
 export EDITOR=vim
-export GOPATH=$HOME/go
+### }
 
-################################################################################
-# HISTORY
-################################################################################
+### history {
+setopt HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_ALL_DUPS
 HOSTNAME_SHORT=$(hostname -s)
 mkdir -p "${HOME}/.history/$(date +%Y/%m/%d)"
 HISTFILE="${HOME}/.history/$(date +%Y/%m/%d)/$(date +%H.%M.%S)_${HOSTNAME_SHORT}_$$"
 HISTSIZE=65536
+SAVEHIST=$HISTSIZE
 
-load_all_history() {
+_load_all_shell_history() {
+    # Save current history first
+    fc -W $HISTFILE
+
     ALL_HISTORY="$HOME/.history/.all-history"
     [ -f "$ALL_HISTORY" ] && rm -f "$ALL_HISTORY"
     cat ~/.history/**/*(.) > "$ALL_HISTORY"
+    # Load *all* shell histories
     fc -R "$ALL_HISTORY"
+
+    _ALL_SHELL_HISTORY_LOADED=1
 }
 
-history-incremental-pattern-search-all-history() {
-    load_all_history
+history_incremental_pattern_search_all_history() {
+    _load_all_shell_history
     zle end-of-history
     zle history-incremental-pattern-search-backward
 }
-zle -N history-incremental-pattern-search-all-history
 
-# use Vim key bindings
-bindkey -v
-bindkey jk vi-cmd-mode
-bindkey '^R' history-incremental-pattern-search-all-history
+history_beginning_search_backward_all_history() {
+    # We can't reload the entire shell history every time we call this function
+    # because successive calls would reload the entire history. Instead, ensure
+    # the *entire* shell history only ever gets loaded once.
+    if [[ "$_ALL_SHELL_HISTORY_LOADED" != "1" ]] ; then
+        _load_all_shell_history
+    fi
+    zle history-beginning-search-backward
+}
+
+bindkey '^R' history_incremental_pattern_search_all_history
 bindkey -M isearch '^R' history-incremental-pattern-search-backward
-bindkey '^[p' history-beginning-search-backward
+bindkey '^[p' history_beginning_search_backward_all_history
 bindkey '^[n' history-beginning-search-forward
 
-case "`uname -s`" in
+zle -N history_incremental_pattern_search_all_history
+zle -N history_beginning_search_backward_all_history
+### }
+
+### prompt {
+case "$(uname -s)" in
   "Darwin")
     alias ls="ls -G"
     alias l="ls -GF"
@@ -76,7 +107,7 @@ case "`uname -s`" in
     # http://stackoverflow.com/questions/12757558/installed-java-7-on-mac-os-x-but-terminal-is-still-using-version-6#comment21605776_12757565
     export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
 
-    # homebrew
+    # /usr/local/bin should take precedence over /usr/bin
     PATH="/usr/local/bin:$PATH"
 
     # I don't care about my hostname when I'm on a physical device
@@ -99,37 +130,32 @@ case "`uname -s`" in
 
     # change the color of root
     PROMPT_COMMAND='echo -ne "\033]0;${HOSTNAME} - ${PWD}\007"'
-    linuxlogo -u 2> /dev/null
+    if_program_installed linuxlogo "linuxlogo -u"
   ;;
 esac
+### }
 
-################################################################################
-# COMMON ALIASES
-################################################################################
-alias swmud="rlwrap telnet swmud.org 6666"
-
+### aliases {
 alias config="cd ~/git/dotfiles"
-alias public="cd ~/Dropbox/Public"
 
 alias hisgrep="history | grep"
 alias fname="find . -type f -name"
 alias vi="vim"
 alias duh="du -chs"
-alias diff="colordiff -u"
+if_program_installed colordiff 'alias diff="colordiff -u"'
+if_program_installed tree 'alias tree="tree -C"'
+if_program_installed ccat 'alias cat="ccat --bg=dark"'
 
-[ -f "$HOME/.local_aliases" ] && source $HOME/.local_aliases
+# Allow for environment-specific custom aliases/functions
+[ -f "$HOME/.localrc" ] && source $HOME/.localrc
 [ -f "$HOME/.mutt/gmail.muttrc" ] && alias email="mutt -F $HOME/.mutt/gmail.muttrc"
+### }
 
-################################################################################
-# COMMON EXPORTS
-################################################################################
-
+### exports {
 export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"
+### }
 
-################################################################################
-# COMMON FUNCTIONS
-################################################################################
-
+### functions {
 cd() {
   if [ -z "$@" ] ; then
     return
@@ -237,11 +263,26 @@ pass() {
         echo "The password for this account is now copied into your clipboard."
     fi
 }
+### }
 
-################################################################################
-# STARTUP COMMANDS
-################################################################################
-
+### startup_commands {
 ls
+### }
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh || true
+### fzf {
+if [ -f ~/.fzf.zsh ] ; then
+    source ~/.fzf.zsh
+
+    # The fzf shell bindings rewrite your ^R with "fzf-history-widget".
+    # I like this widget, but I would like it to load my entire shell history
+    # instead of just the current shell's history.
+    if [[ "$(bindkey '^R' | cut -f2 -d' ')" == "fzf-history-widget" ]] ; then
+        enhanced-fzf-history-widget() {
+            _load_all_shell_history
+            fzf-history-widget
+        }
+        zle     -N   enhanced-fzf-history-widget
+        bindkey '^R' enhanced-fzf-history-widget
+    fi
+fi
+### }
