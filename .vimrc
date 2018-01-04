@@ -12,9 +12,9 @@ set nosmartindent
 set cindent
 set backspace=indent,eol,start
 set copyindent
-set tabstop=2
-set shiftwidth=2
-set softtabstop=2
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
 set expandtab
 set smarttab " makes you go back 2 when you del from tab
 set hlsearch " highlight all matches in a file when searching
