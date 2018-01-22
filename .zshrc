@@ -92,6 +92,7 @@ bindkey '^R' history_incremental_pattern_search_all_history
 bindkey -M isearch '^R' history-incremental-pattern-search-backward
 bindkey '^[p' history_beginning_search_backward_all_history
 bindkey '^[n' history-beginning-search-forward
+bindkey '^W' where-is
 
 zle -N history_incremental_pattern_search_all_history
 zle -N history_beginning_search_backward_all_history
