@@ -81,7 +81,7 @@ nnoremap <leader>4 I#### <esc>
 nnoremap <leader>5 I##### <esc>
 nnoremap <F4> <Esc>:1,$!xmllint --format %<CR>
 "json formating
-nnoremap <F5> <Esc>:%!python -m json.tool<CR>
+nnoremap <F5> <Esc>:%!ppjson<CR>
 nnoremap <F6> :call UpdateTags()
 nnoremap <F7> :NumbersToggle<CR>
 nnoremap ,, <C-^>
