@@ -1,6 +1,6 @@
 [user]
     name = Nitin Kanigicharla
-    email = kanigicharla.nitin@gmail.com
+	email = nkanigicharla@expedia.com
 [alias]
     aa = add --all
     adu = add -u
@@ -27,9 +27,11 @@
     sta = status
     stu = status --untracked=no
     unstage = reset HEAD
+    cleanup = !git branch --merged | grep  -v '\\*\\|master\\|develop' | xargs -n 1 git branch -d
 [core]
     editor = $EDITOR
     excludesfile = ~/.gitignore_global
+    pager = less -SFX
 [color]
     ui = true
 [merge]

@@ -81,7 +81,7 @@ nnoremap <leader>4 I#### <esc>
 nnoremap <leader>5 I##### <esc>
 nnoremap <F4> <Esc>:1,$!xmllint --format %<CR>
 "json formating
-nnoremap <F5> <Esc>:%!ppjson<CR>
+nnoremap <F5> <Esc>:%!ppjson -m false<CR>
 nnoremap <F6> :call UpdateTags()
 nnoremap <F7> :NumbersToggle<CR>
 nnoremap ,, <C-^>
@@ -267,6 +267,12 @@ augroup filetype_java
   autocmd Filetype java setlocal cindent
   autocmd BufNewFile *.java call Create_Java_Template()
   autocmd Filetype java nnoremap <leader>r :call Compile_And_Run_Java()<CR>
+augroup END
+
+augroup textfiles
+  autocmd!
+  autocmd BufRead,BufNewFile *.txt set spell
+  autocmd FileType gitcommit set spell
 augroup END
 
 function! Create_Java_Template()

@@ -30,6 +30,9 @@ nnoremap ,' viw<esc>a'<esc>hbi'<esc>lel
 "formating
 nnoremap ,l :action ReformatCode<CR>
 
+"build artifact
+nnoremap ,c :action CompileProject<CR>
+
 nnoremap ,sv :source ~/.ideavimrc<CR>
 
 set ignorecase smartcase " use caps if any caps used in search

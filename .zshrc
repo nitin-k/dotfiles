@@ -145,9 +145,12 @@ alias vi="vim"
 alias duh="du -chs"
 alias diff="colordiff"
 alias ag="ag --hidden"
+#alias filepath='echo `pwd`/`ls "$1"`'
 if_program_installed colordiff 'alias diff="colordiff -u"'
 if_program_installed tree 'alias tree="tree -C"'
 if_program_installed ccat 'alias cat="ccat --bg=dark"'
+if_program_installed bat 'alias cat="bat"'
+if_program_installed exa 'alias ls="exa"'
 
 # Allow for environment-specific custom aliases/functions
 [ -f "$HOME/.localrc" ] && source $HOME/.localrc
@@ -164,6 +167,10 @@ cd() {
     return
   fi
   builtin cd "$@" && ls
+}
+
+filepath() {
+    echo `pwd`/`ls "$1"`
 }
 
 extract() {
@@ -289,3 +296,8 @@ if [ -f ~/.fzf.zsh ] ; then
     fi
 fi
 ### }
+
+### LESS
+export LESS=-RI
+
+export PATH="/usr/local/opt/freetds@0.91/bin:$PATH"
