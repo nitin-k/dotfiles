@@ -73,6 +73,7 @@ noremap gk k
 nnoremap Q gqip
 nnoremap S 1z=
 nnoremap <leader>n :wincmd v<cr>:wincmd l<cr>
+nnoremap <leader>N :tabnew<cr>
 nnoremap ; :
 nnoremap <leader>1 :call Underline("=")<CR>
 nnoremap <leader>2 :call Underline("-")<CR>
@@ -92,6 +93,7 @@ nnoremap <leader>' viw<Esc>a'<Esc>hbi'<Esc>lel
 nnoremap <leader>w :set hlsearch!<CR>
 nnoremap <leader>dw :%s/\v +\n/\r/g<CR><C-o> " when substituting, \r is newline
 nnoremap <leader>sw :call VimuxRunCommand("cd $HOME/git/swlib && ./sendToMud.sh wizards/sead/" . @%)<CR>
+nnoremap <leader>sd :NERDTreeToggle<CR>
 " need to understand thi before undoing it
 "nnoremap / /\v
 nnoremap Y y$
@@ -318,6 +320,7 @@ Bundle 'tpope/vim-surround'
 Bundle 'tpope/vim-unimpaired'
 Bundle 'tpope/vim-vinegar'
 Bundle 'vim-scripts/sudo.vim'
+Bundle 'scrooloose/nerdtree'
 
 " Colorschemes
 Bundle 'altercation/vim-colors-solarized'
