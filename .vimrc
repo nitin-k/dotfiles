@@ -40,6 +40,7 @@ let mapleader=","
 set mouse=nv " enable mouse for normal and visual modes (not insert!!!)
 set nocompatible
 filetype off
+let vim_markdown_preview_github=1 " use grip to preview md files
 
 " save when losing focus
 autocmd FocusLost * :silent! wall
@@ -109,6 +110,8 @@ nnoremap <C-k> <C-w>k
 nnoremap <Down> <C-w>j
 nnoremap <C-j> <C-w>j
 nnoremap <leader>c :Silent echo -n %% \| pbcopy<cr>
+" toggle folding
+nnoremap <Space> za
 
 " =======================
 " Fuzzy-finding mappings:
@@ -216,15 +219,23 @@ augroup END
 augroup filetype_python
   autocmd!
   autocmd FileType python nnoremap <leader>r :!python % <CR>
-  autocmd FileType python set tabstop=2
-  autocmd FileType python set shiftwidth=2
-  autocmd FileType python set softtabstop=2
+  autocmd FileType python set tabstop=4
+  autocmd FileType python set shiftwidth=4
+  autocmd FileType python set softtabstop=4
 augroup END
+
 
 augroup filetype_markdown
   autocmd!
   autocmd FileType markdown setlocal textwidth=78
   autocmd FileType markdown set spell
+augroup END
+
+augroup filetype_yml
+  autocmd!
+  autocmd BufNewFile,BufReadPost *.{yaml,yml} set filetype=yaml
+  autocmd BufNewFile,BufReadPost *.{yaml,yml} set foldmethod=indent
+  autocmd BufNewFile,BufReadPost *.{yaml,yml} set foldlevel=99
 augroup END
 
 augroup filetype_lpc
@@ -304,6 +315,7 @@ augroup filetype_vim
   autocmd FileType vim setlocal foldmethod=marker
 augroup END
 " }}}
+"
 
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
@@ -321,12 +333,16 @@ Bundle 'tpope/vim-unimpaired'
 Bundle 'tpope/vim-vinegar'
 Bundle 'vim-scripts/sudo.vim'
 Bundle 'scrooloose/nerdtree'
+Bundle 'vim-python/python-syntax'
+Bundle 'stephpy/vim-yaml'
+Bundle 'JamshedVesuna/vim-markdown-preview'
 
 " Colorschemes
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'joedicastro/vim-molokai256'
 Bundle 'sjl/badwolf'
 Bundle 'slindberg/vim-colors-smyck'
+
 
 " Unite settings
 autocmd FileType unite call s:unite_my_settings()

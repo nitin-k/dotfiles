@@ -5,6 +5,8 @@ ZSH_THEME="aseles"
 # Red dots are displayed while waiting for completion
 COMPLETION_WAITING_DOTS="true"
 
+export GPG_TTY=`tty`
+
 plugins=(ssh-agent tmux vundle)
 
 DISABLE_AUTO_UPDATE=true
@@ -106,7 +108,7 @@ case "$(uname -s)" in
 
     # use jdk 8 by default:
     # http://stackoverflow.com/questions/12757558/installed-java-7-on-mac-os-x-but-terminal-is-still-using-version-6#comment21605776_12757565
-    export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+    export JAVA_HOME=$(/usr/libexec/java_home -v 11)
 
     # /usr/local/bin should take precedence over /usr/bin
     PATH="/usr/local/bin:$PATH"
@@ -144,7 +146,7 @@ alias fname="find . -type f -name"
 alias vi="vim"
 alias duh="du -chs"
 alias diff="colordiff"
-alias ag="ag --hidden"
+alias ag="ag --hidden --ignore-case"
 #alias filepath='echo `pwd`/`ls "$1"`'
 if_program_installed colordiff 'alias diff="colordiff -u"'
 if_program_installed tree 'alias tree="tree -C"'
@@ -301,3 +303,15 @@ fi
 export LESS=-RI
 
 export PATH="/usr/local/opt/freetds@0.91/bin:$PATH"
+eval "$(rbenv init -)"
+
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+## aws_key_gen aliases
+alias aws_lst="aws_key_gen login -r arn:aws:iam::884947639603:role/User -f"
+alias aws_lsp="aws_key_gen login -a decaf -r arn:aws:iam::508596605372:role/User -f"
+
+export HOMEBREW_ARTIFACTORY_API_TOKEN=AKCp5ekcStqZ13pLqrXht6QDSxYcZ6NawqNYrgxTPSsYyM8DNCYeqkVdEpuzRHoQDjLtYg5TA
+export HOMEBREW_ARTIFACTORY_API_USER=skanigicharla
