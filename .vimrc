@@ -184,28 +184,6 @@ command! -nargs=1 Silent
       \ | execute ':silent !'.<q-args>
       \ | execute ':redraw!'
 
-" OS specific mappings {{{
-" also useful - has('gui_running')
-if has("win32")
-  " assume that your file ends with .html
-  autocmd FileType html nmap <silent> <F5> :! start %<CR>
-else
-  if has("unix")
-    let s:uname = system("uname")
-    if s:uname == "Darwin\n"
-      " mac stuff
-      autocmd FileType html nmap <silent> <F5> :!open -a Google\ Chrome %<CR>
-    else
-      " linux stuff
-      autocmd FileType html nmap <silent> <F5> :!gnome-open %<CR>
-    endif
-    " mac + linux stuff
-    let &titleold=getcwd()
-  else
-    echo "No idea what OS you're running"
-  endif
-endif
-" }}}
 
 " Language-specific mappings {{{
 
@@ -325,7 +303,12 @@ augroup END
 " }}}
 "
 
-"set rtp+=~/.vim/bundle/vundle/
+" Install plug to desired directory
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
 call plug#begin()
 
 Plug 'gmarik/vundle'

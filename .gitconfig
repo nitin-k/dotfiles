@@ -1,7 +1,6 @@
 [user]
     name = Nitin Kanigicharla
-	email = skanigicharla@expedia.com
-    #signingkey = 9FD4304B5903AEA7
+	  email = skanigicharla@expedia.com
 [alias]
     aa = add --all
     adu = add -u

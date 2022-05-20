@@ -39,3 +39,5 @@ set ignorecase smartcase " use caps if any caps used in search
 inoremap <esc> <esc>
 "set relativenumber
 set number
+set ideajoin
+set clipboard+=ideaput
