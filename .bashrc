@@ -163,3 +163,7 @@ fi
 ls
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+if [ -f ~/.local_aliases ]; then
+    . ~/.local_aliases
+fi

@@ -108,7 +108,7 @@ case "$(uname -s)" in
 
     # use jdk 8 by default:
     # http://stackoverflow.com/questions/12757558/installed-java-7-on-mac-os-x-but-terminal-is-still-using-version-6#comment21605776_12757565
-    export JAVA_HOME=$(/usr/libexec/java_home -v 11)
+    export JAVA_HOME=$(/usr/libexec/java_home -v 15)
 
     # /usr/local/bin should take precedence over /usr/bin
     PATH="/usr/local/bin:$PATH"
@@ -305,13 +305,17 @@ export LESS=-RI
 export PATH="/usr/local/opt/freetds@0.91/bin:$PATH"
 eval "$(rbenv init -)"
 
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
 
-## aws_key_gen aliases
-alias aws_lst="aws_key_gen login -r arn:aws:iam::884947639603:role/User -f"
-alias aws_lsp="aws_key_gen login -a decaf -r arn:aws:iam::508596605372:role/User -f"
 
 export HOMEBREW_ARTIFACTORY_API_TOKEN=AKCp5ekcStqZ13pLqrXht6QDSxYcZ6NawqNYrgxTPSsYyM8DNCYeqkVdEpuzRHoQDjLtYg5TA
 export HOMEBREW_ARTIFACTORY_API_USER=skanigicharla
+export PATH="/usr/local/opt/ruby/bin:$PATH"
+
+source $HOME/.local_aliases
+
+#export NVM_DIR="$HOME/.nvm"
+#  [ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+#  [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion

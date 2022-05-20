@@ -12,9 +12,9 @@ set nosmartindent
 set cindent
 set backspace=indent,eol,start
 set copyindent
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
 set expandtab
 set smarttab " makes you go back 2 when you del from tab
 set hlsearch " highlight all matches in a file when searching
@@ -83,7 +83,7 @@ nnoremap <leader>4 I#### <esc>
 nnoremap <leader>5 I##### <esc>
 nnoremap <F4> <Esc>:1,$!xmllint --format %<CR>
 "json formating
-nnoremap <F5> <Esc>:%!ppjson -m false<CR>
+nnoremap <F5> <Esc>:%!ppjson -i 2 -m false<CR>
 nnoremap <F6> :call UpdateTags()
 nnoremap <F7> :NumbersToggle<CR>
 nnoremap ,, <C-^>
@@ -112,6 +112,14 @@ nnoremap <C-j> <C-w>j
 nnoremap <leader>c :Silent echo -n %% \| pbcopy<cr>
 " toggle folding
 nnoremap <Space> za
+nnoremap <leader>lj :set filetype=json foldmethod=syntax<CR>
+" Used for json formation with new line character and escaping double quotes
+" Mostly related to TIS
+"
+nnoremap <leader>jf  <Esc>:%!ppjson -i 2 -m false<CR>
+nnoremap <leader>cj : s/^"// \| ::s/"$// \| :%s/\\n/\r/g \| %s/\\"/"/g<CR>
+nnoremap <leader>cn : s/^"// \| ::s/"$// \| %s/\\\\n/new\-line/g \| :%s/\\n/\r/g \| %s/\\"/"/g \| %s/new\-line/\\n /g<CR>
+nnoremap <leader>u :%s/\\n/\r/g \| %s/\\"/"/g \| %s/\\t//g <CR>
 
 " =======================
 " Fuzzy-finding mappings:
@@ -219,9 +227,9 @@ augroup END
 augroup filetype_python
   autocmd!
   autocmd FileType python nnoremap <leader>r :!python % <CR>
-  autocmd FileType python set tabstop=4
-  autocmd FileType python set shiftwidth=4
-  autocmd FileType python set softtabstop=4
+  autocmd FileType python set tabstop=2
+  autocmd FileType python set shiftwidth=2
+  autocmd FileType python set softtabstop=2
 augroup END
 
 
@@ -317,31 +325,33 @@ augroup END
 " }}}
 "
 
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+"set rtp+=~/.vim/bundle/vundle/
+call plug#begin()
 
-Bundle 'gmarik/vundle'
-
-Bundle 'junegunn/fzf'
-Bundle 'junegunn/fzf.vim'
-Bundle 'kchmck/vim-coffee-script'
-Bundle 'mhinz/vim-startify'
-Bundle 'scrooloose/syntastic'
-Bundle 'tpope/vim-repeat'
-Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-unimpaired'
-Bundle 'tpope/vim-vinegar'
-Bundle 'vim-scripts/sudo.vim'
-Bundle 'scrooloose/nerdtree'
-Bundle 'vim-python/python-syntax'
-Bundle 'stephpy/vim-yaml'
-Bundle 'JamshedVesuna/vim-markdown-preview'
+Plug 'gmarik/vundle'
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
+Plug 'kchmck/vim-coffee-script'
+Plug 'mhinz/vim-startify'
+Plug 'scrooloose/syntastic'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-vinegar'
+Plug 'vim-scripts/sudo.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'vim-python/python-syntax'
+Plug 'stephpy/vim-yaml'
+Plug 'JamshedVesuna/vim-markdown-preview'
+Plug 'fatih/vim-go'
 
 " Colorschemes
-Bundle 'altercation/vim-colors-solarized'
-Bundle 'joedicastro/vim-molokai256'
-Bundle 'sjl/badwolf'
-Bundle 'slindberg/vim-colors-smyck'
+Plug 'altercation/vim-colors-solarized'
+Plug 'joedicastro/vim-molokai256'
+Plug 'sjl/badwolf'
+Plug 'slindberg/vim-colors-smyck'
+
+call plug#end()
 
 
 " Unite settings
@@ -364,7 +374,7 @@ set statusline+=\ %=%l/%L\ (%p%%)\ \  " right align percentages
 if $TERM == "xterm-256color"
   set t_Co=256
 endif
-colorscheme molokai256
+"colorscheme molokai256
 
 " flag lines that have trailing whitespace, has to come after colorscheme
 highlight TrailingWhiteSpace ctermbg=red guibg=red

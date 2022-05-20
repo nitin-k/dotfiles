@@ -37,5 +37,5 @@ nnoremap ,sv :source ~/.ideavimrc<CR>
 
 set ignorecase smartcase " use caps if any caps used in search
 inoremap <esc> <esc>
-set relativenumber
+"set relativenumber
 set number
