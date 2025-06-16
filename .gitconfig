@@ -1,6 +1,6 @@
 [user]
     name = Nitin Kanigicharla
-	email = nkanigicharla@expedia.com
+	  email = skanigicharla@expedia.com
 [alias]
     aa = add --all
     adu = add -u
@@ -45,3 +45,9 @@
     showUntrackedFiles = all
 [log]
     mailmap = true
+[commit]
+	gpgsign = false
+[pull]
+	rebase = false
+[credential]
+	helper = osxkeychain

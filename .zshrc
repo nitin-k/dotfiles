@@ -1,9 +1,11 @@
 ### oh-my-zsh {
 ZSH=$HOME/.oh-my-zsh
-ZSH_THEME="aseles"
+ZSH_THEME="nk"
 
 # Red dots are displayed while waiting for completion
 COMPLETION_WAITING_DOTS="true"
+
+export GPG_TTY=`tty`
 
 plugins=(ssh-agent tmux vundle)
 
@@ -33,22 +35,19 @@ for directory in $PATH_DIRECTORIES; do
   fi
 done
 
-# Use Vim key bindings to edit the current shell command
-bindkey -v
-bindkey jk vi-cmd-mode
-
-# Execute a command if a particular program exists
+# Eval arbitrary code if a particular program exists
 if_program_installed() {
     program=$1
     shift
     which "$program" > /dev/null && eval $* || true
 }
-### }
 
-### editor {
 export VISUAL=vim
 export EDITOR=vim
-### }
+
+# Use Vim key bindings to edit the current shell command
+bindkey -v
+bindkey jk vi-cmd-mode
 
 ### history {
 setopt HIST_FIND_NO_DUPS
@@ -104,34 +103,13 @@ case "$(uname -s)" in
     alias ls="ls -G"
     alias l="ls -GF"
 
-    # use jdk 8 by default:
-    # http://stackoverflow.com/questions/12757558/installed-java-7-on-mac-os-x-but-terminal-is-still-using-version-6#comment21605776_12757565
-    export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+    export JAVA_HOME=$(/usr/libexec/java_home -v 15)
 
     # /usr/local/bin should take precedence over /usr/bin
     PATH="/usr/local/bin:$PATH"
 
     # I don't care about my hostname when I'm on a physical device
     PROMPT_COMMAND='echo -ne "\033]0;${PWD}\007"'
-  ;;
-  "FreeBSD")
-    alias ls="ls -G"
-    alias l="ls -GF"
-    PROMPT_COMMAND='echo -ne "\033]0;${HOSTNAME} - ${PWD}\007"'
-  ;;
-  *)
-    alias ls="ls --color"
-    alias l="ls --color -F"
-    alias pbcopy='xclip -selection clipboard'
-    alias pbpaste='xclip -selection clipboard -o'
-
-    say() {
-      espeak -s 120 "$@" > /dev/null 2>&1
-    }
-
-    # change the color of root
-    PROMPT_COMMAND='echo -ne "\033]0;${HOSTNAME} - ${PWD}\007"'
-    if_program_installed linuxlogo "linuxlogo -u"
   ;;
 esac
 ### }
@@ -144,7 +122,7 @@ alias fname="find . -type f -name"
 alias vi="vim"
 alias duh="du -chs"
 alias diff="colordiff"
-alias ag="ag --hidden"
+alias ag="ag --hidden --ignore-case"
 #alias filepath='echo `pwd`/`ls "$1"`'
 if_program_installed colordiff 'alias diff="colordiff -u"'
 if_program_installed tree 'alias tree="tree -C"'
@@ -193,11 +171,6 @@ extract() {
   fi
 }
 
-psgrep() {
-  ps aux |
-  grep -v grep | #exclude this grep from the results
-  grep "$@" -i --color=auto;
-}
 
 # Keep going up directories until you find "$file", or we reach root.
 find_parent_file() {
@@ -247,34 +220,6 @@ vif() {
     fi
 }
 
-pass() {
-    lpass ls > /dev/null 2>&1
-
-    if [[ -z "$LPASS_USER" ]] ; then
-        # Zsh-specific way of reading into a variable, see
-        # http://superuser.com/q/555874/363363
-        read "?LastPass username? " LPASS_USER
-    fi
-
-    if [[ $? -ne 0 ]] ; then
-		lpass login $LPASS_USER
-    fi
-
-    id=$(lpass ls | fzf | egrep -o "id: [0-9]+" | sed -e 's/id: //')
-
-    # The ID might be empty (i.e. if we ctrl+c out of the selection)
-    if [[ ! -z "$id" ]] ; then
-        echo "Username:" $(lpass show --username $id)
-        if [[ ! -z "$(lpass show --notes $id)" ]] ; then
-            echo "Notes:" $(lpass show --notes $id)
-        fi
-        lpass show -c --password $id
-        echo ""
-        echo "The password for this account is now copied into your clipboard."
-    fi
-}
-### }
-
 ### startup_commands {
 ls
 ### }
@@ -301,3 +246,19 @@ fi
 export LESS=-RI
 
 export PATH="/usr/local/opt/freetds@0.91/bin:$PATH"
+eval "$(rbenv init -)"
+
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+
+
+export HOMEBREW_ARTIFACTORY_API_TOKEN=AKCp5ekcStqZ13pLqrXht6QDSxYcZ6NawqNYrgxTPSsYyM8DNCYeqkVdEpuzRHoQDjLtYg5TA
+export HOMEBREW_ARTIFACTORY_API_USER=skanigicharla
+export PATH="/usr/local/opt/ruby/bin:$PATH"
+
+source $HOME/.local_aliases
+
+#export NVM_DIR="$HOME/.nvm"
+#  [ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+#  [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion

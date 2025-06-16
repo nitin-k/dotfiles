@@ -12,9 +12,9 @@ set nosmartindent
 set cindent
 set backspace=indent,eol,start
 set copyindent
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
 set expandtab
 set smarttab " makes you go back 2 when you del from tab
 set hlsearch " highlight all matches in a file when searching
@@ -40,6 +40,7 @@ let mapleader=","
 set mouse=nv " enable mouse for normal and visual modes (not insert!!!)
 set nocompatible
 filetype off
+let vim_markdown_preview_github=1 " use grip to preview md files
 
 " save when losing focus
 autocmd FocusLost * :silent! wall
@@ -82,7 +83,7 @@ nnoremap <leader>4 I#### <esc>
 nnoremap <leader>5 I##### <esc>
 nnoremap <F4> <Esc>:1,$!xmllint --format %<CR>
 "json formating
-nnoremap <F5> <Esc>:%!ppjson -m false<CR>
+nnoremap <F5> <Esc>:%!ppjson -i 2 -m false<CR>
 nnoremap <F6> :call UpdateTags()
 nnoremap <F7> :NumbersToggle<CR>
 nnoremap ,, <C-^>
@@ -109,6 +110,16 @@ nnoremap <C-k> <C-w>k
 nnoremap <Down> <C-w>j
 nnoremap <C-j> <C-w>j
 nnoremap <leader>c :Silent echo -n %% \| pbcopy<cr>
+" toggle folding
+nnoremap <Space> za
+nnoremap <leader>lj :set filetype=json foldmethod=syntax<CR>
+" Used for json formation with new line character and escaping double quotes
+" Mostly related to TIS
+"
+nnoremap <leader>jf  <Esc>:%!ppjson -i 2 -m false<CR>
+nnoremap <leader>cj : s/^"// \| ::s/"$// \| :%s/\\n/\r/g \| %s/\\"/"/g<CR>
+nnoremap <leader>cn : s/^"// \| ::s/"$// \| %s/\\\\n/new\-line/g \| :%s/\\n/\r/g \| %s/\\"/"/g \| %s/new\-line/\\n /g<CR>
+nnoremap <leader>u :%s/\\n/\r/g \| %s/\\"/"/g \| %s/\\t//g <CR>
 
 " =======================
 " Fuzzy-finding mappings:
@@ -173,28 +184,6 @@ command! -nargs=1 Silent
       \ | execute ':silent !'.<q-args>
       \ | execute ':redraw!'
 
-" OS specific mappings {{{
-" also useful - has('gui_running')
-if has("win32")
-  " assume that your file ends with .html
-  autocmd FileType html nmap <silent> <F5> :! start %<CR>
-else
-  if has("unix")
-    let s:uname = system("uname")
-    if s:uname == "Darwin\n"
-      " mac stuff
-      autocmd FileType html nmap <silent> <F5> :!open -a Google\ Chrome %<CR>
-    else
-      " linux stuff
-      autocmd FileType html nmap <silent> <F5> :!gnome-open %<CR>
-    endif
-    " mac + linux stuff
-    let &titleold=getcwd()
-  else
-    echo "No idea what OS you're running"
-  endif
-endif
-" }}}
 
 " Language-specific mappings {{{
 
@@ -221,10 +210,18 @@ augroup filetype_python
   autocmd FileType python set softtabstop=2
 augroup END
 
+
 augroup filetype_markdown
   autocmd!
   autocmd FileType markdown setlocal textwidth=78
   autocmd FileType markdown set spell
+augroup END
+
+augroup filetype_yml
+  autocmd!
+  autocmd BufNewFile,BufReadPost *.{yaml,yml} set filetype=yaml
+  autocmd BufNewFile,BufReadPost *.{yaml,yml} set foldmethod=indent
+  autocmd BufNewFile,BufReadPost *.{yaml,yml} set foldlevel=99
 augroup END
 
 augroup filetype_lpc
@@ -304,29 +301,41 @@ augroup filetype_vim
   autocmd FileType vim setlocal foldmethod=marker
 augroup END
 " }}}
+"
 
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+" Install plug to desired directory
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+call plug#begin()
 
-Bundle 'gmarik/vundle'
-
-Bundle 'junegunn/fzf'
-Bundle 'junegunn/fzf.vim'
-Bundle 'kchmck/vim-coffee-script'
-Bundle 'mhinz/vim-startify'
-Bundle 'scrooloose/syntastic'
-Bundle 'tpope/vim-repeat'
-Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-unimpaired'
-Bundle 'tpope/vim-vinegar'
-Bundle 'vim-scripts/sudo.vim'
-Bundle 'scrooloose/nerdtree'
+Plug 'gmarik/vundle'
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
+Plug 'kchmck/vim-coffee-script'
+Plug 'mhinz/vim-startify'
+Plug 'scrooloose/syntastic'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-vinegar'
+Plug 'vim-scripts/sudo.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'vim-python/python-syntax'
+Plug 'stephpy/vim-yaml'
+Plug 'JamshedVesuna/vim-markdown-preview'
+Plug 'fatih/vim-go'
 
 " Colorschemes
-Bundle 'altercation/vim-colors-solarized'
-Bundle 'joedicastro/vim-molokai256'
-Bundle 'sjl/badwolf'
-Bundle 'slindberg/vim-colors-smyck'
+Plug 'altercation/vim-colors-solarized'
+Plug 'joedicastro/vim-molokai256'
+Plug 'sjl/badwolf'
+Plug 'slindberg/vim-colors-smyck'
+
+call plug#end()
+
 
 " Unite settings
 autocmd FileType unite call s:unite_my_settings()
@@ -348,7 +357,7 @@ set statusline+=\ %=%l/%L\ (%p%%)\ \  " right align percentages
 if $TERM == "xterm-256color"
   set t_Co=256
 endif
-colorscheme molokai256
+"colorscheme molokai256
 
 " flag lines that have trailing whitespace, has to come after colorscheme
 highlight TrailingWhiteSpace ctermbg=red guibg=red
