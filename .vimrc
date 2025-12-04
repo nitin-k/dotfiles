@@ -66,7 +66,7 @@ iabbrev haev have
 cnoremap %% <C-R>=getcwd().'/'<cr>
 cnoremap %g <C-R>=FindParentGit()<cr>
 
-" *** normal mode remappings ***
+" *** normal mde remappings ***
 noremap j gj
 noremap k gk
 noremap gj j
@@ -181,7 +181,7 @@ function! FindParentGit()
 endfunction
 
 command! -nargs=1 Silent
-      \ | execute ':silent !'.<q-args>
+      \ | Execute ':silent !'.<q-args>
       \ | execute ':redraw!'
 
 

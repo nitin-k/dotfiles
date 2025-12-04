@@ -1,30 +1,61 @@
-# dotfiles
+# Dotfiles
 
-Yet another dotfile repository.
+My personal dotfiles and configuration files.
 
-This repository is assumed to be kept in `$HOME/git/dotfiles`. The dotfiles
-are symlinked into the user's home directory. There are 2 main disadvantages
-to this approach:
+## Features
 
-1. Every time a new dotfile is added or removed, the `link.sh` script needs to
-   be updated.
-2. The `link.sh` script is safe by default. If an existing dotfile (i.e.
-   `bashrc`) already exists, it will not be overwritten. This means that the
-    user must delete existing and conflicting files before running the linking
-    script.
+- **Shell**: zsh with oh-my-zsh and custom theme
+- **Editor**: Neovim with extensive configuration
+- **Terminal**: tmux with session persistence
+- **Package Management**: Homebrew, mise, and various language managers
 
-## Overview
+## Quick Start
 
-The main components of this repository are the [zshrc](.zshrc) and the
-[vimrc](.vimrc). These are the files that are the most likely to change and
-the most important in the repository.
+1. Clone this repository
+2. Run `./bootstrap` to install and link all dotfiles
+3. Restart your terminal
 
-## Bootstrapping
+## Tmux Session Management
 
-To bootstrap an Ubuntu environment:
+This dotfiles setup includes [tmux-resurrect](https://github.com/tmux-plugins/tmux-resurrect) for automatic session persistence.
+
+### Setup
 
 ```bash
-curl -s https://raw.githubusercontent.com/nitin-k/dotfiles/master/bootstrap-bootstrap | bash
+# Run the setup script
+./bin/setup-tmux-resurrect
+
+# Or use the alias
+tmux-setup
 ```
 
-Or, clone this repository and run the [bootstrap](bootstrap) script.
+### Usage
+
+**Key Bindings:**
+- `Ctrl-a + Ctrl-s`: Save tmux environment
+- `Ctrl-a + Ctrl-r`: Restore tmux environment
+
+**Aliases:**
+- `tmux-save`: Save current session from outside tmux
+- `tmux-restore`: Restore session from outside tmux
+- `tmux-setup`: Run the setup script
+
+### Features
+
+- ✅ Saves all sessions, windows, panes and their order
+- ✅ Restores current working directory for each pane
+- ✅ Restores exact pane layouts within windows
+- ✅ Saves and restores vim/neovim sessions
+- ✅ Saves and restores pane contents
+- ✅ Automatically saves every 15 minutes
+
+### Configuration
+
+- Session files are stored in: `~/.tmux/resurrect/`
+- Vim sessions are automatically saved/restored
+- Pane contents are captured and restored
+- Additional programs (ssh, mysql, psql, vim, nvim) are restored
+
+## Installation
+
+See the main README for full installation instructions.

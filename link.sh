@@ -49,9 +49,15 @@ install_oh_my_zsh() {
 }
 
 setup_oh_my_zsh_theme() {
-    CUSTOM_THEME_DIR=$HOME/.oh-my-zsh/custom/themes
+        CUSTOM_THEME_DIR=$HOME/.oh-my-zsh/custom/themes
 
-    if [ ! -L "$CUSTOM_THEME_DIR/nk..zsh-theme" ] ; then
+    if [ ! -L "$CUSTOM_THEME_DIR/nk.zsh-theme" ] ; then
+        mkdir -p "$CUSTOM_THEME_DIR"
+        ln -vs "$DOTFILES_DIRECTORY/nk.zsh-theme" "$CUSTOM_THEME_DIR/nk.zsh-theme"
+    fi
+}
+
+    if [ ! -L "$CUSTOM_THEME_DIR/nk.zsh-theme" ] ; then
         mkdir -p "$CUSTOM_THEME_DIR"
         ln -vs "$DOTFILES_DIRECTORY/nk.zsh-theme" "$CUSTOM_THEME_DIR/nk.zsh-theme"
     fi

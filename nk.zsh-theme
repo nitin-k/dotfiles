@@ -46,7 +46,7 @@ battery() {
     fi
 }
 
-aselesse_git_prompt() {
+nitin_git_prompt() {
     if [[ "$GITSTATUS_ENABLED" == true ]] ; then
         if gitstatus_query "MY" ; then
             if ! [[ $VCS_STATUS_RESULT == 'ok-sync' ]] ; then
@@ -106,7 +106,7 @@ PROMPT="${current_directory}${last_exit_code_if_nonzero}${number_of_background_j
 if [[ "$GITSTATUS_ENABLED" == true ]] ; then
     gitstatus_stop 'MY' && gitstatus_start -s -1 -u -1 -c -1 -d -1 'MY'
     autoload -Uz add-zsh-hook
-    add-zsh-hook precmd aselesse_git_prompt
+    add-zsh-hook precmd nitin_git_prompt
 else
     RPROMPT='$(battery) $(git_prompt_info)'
 fi

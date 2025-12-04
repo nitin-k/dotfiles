@@ -1,6 +1,6 @@
 [user]
     name = Nitin Kanigicharla
-	  email = skanigicharla@expedia.com
+    email = kanigicharla.nitin@gmail.com
 [alias]
     aa = add --all
     adu = add -u
@@ -50,4 +50,4 @@
 [pull]
 	rebase = false
 [credential]
-	helper = osxkeychain
+	helper = store

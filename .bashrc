@@ -3,6 +3,11 @@ if [ -d "$HOME/bin" ] ; then
   PATH="$HOME/bin:$PATH"
 fi
 
+# set PATH so it includes user's local bin (for pipx, uv, etc.) if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+  PATH="$HOME/.local/bin:$PATH"
+fi
+
 # lets you use vi keybindings, use escape char and navigate, use v to
 # have current line(s) open up in vim
 set -o vi
@@ -167,3 +172,8 @@ ls
 if [ -f ~/.local_aliases ]; then
     . ~/.local_aliases
 fi
+
+export PATH=$HOME/.toolbox/bin:$PATH
+eval "$(/opt/homebrew/bin/brew shellenv)"
+. "$HOME/.cargo/env"
+source /Users/snitinka/.brazil_completion/bash_completion 

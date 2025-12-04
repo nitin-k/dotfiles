@@ -16,5 +16,5 @@ fi
 
 # Key bindings
 # ------------
-source "/usr/local/opt/fzf/shell/key-bindings.bash"
+source "/Users/snitinka/local-opt/fzf/key-bindings.bash"
 

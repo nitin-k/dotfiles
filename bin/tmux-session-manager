@@ -1,0 +1,320 @@
+#!/bin/bash
+
+# tmux-session-manager: Save and restore tmux sessions
+# Usage: ./tmux-session-manager [save|restore|list|kill] [session_name]
+
+set -e
+
+TMUX_SESSIONS_DIR="$HOME/.tmux-sessions"
+DEFAULT_SESSION_FILE="$TMUX_SESSIONS_DIR/default.json"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Ensure sessions directory exists
+mkdir -p "$TMUX_SESSIONS_DIR"
+
+log() {
+    echo -e "${GREEN}[tmux-session-manager]${NC} $1"
+}
+
+error() {
+    echo -e "${RED}[ERROR]${NC} $1" >&2
+}
+
+warn() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+# Check if tmux is running
+is_tmux_running() {
+    tmux has-session 2>/dev/null
+}
+
+# Get current session name
+get_current_session() {
+    tmux display-message -p '#S' 2>/dev/null || echo ""
+}
+
+# Save a tmux session
+save_session() {
+    local session_name="$1"
+    
+    if [ -z "$session_name" ]; then
+        session_name=$(get_current_session)
+        if [ -z "$session_name" ]; then
+            error "No session name provided and no active tmux session found"
+            exit 1
+        fi
+    fi
+    
+    if ! tmux has-session -t "$session_name" 2>/dev/null; then
+        error "Session '$session_name' does not exist"
+        exit 1
+    fi
+    
+    local session_file="$TMUX_SESSIONS_DIR/${session_name}.json"
+    
+    log "Saving session '$session_name' to $session_file"
+    
+    # Create session data structure
+    local session_data="{
+        \"session_name\": \"$session_name\",
+        \"windows\": [],
+        \"created_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+    }"
+    
+    # Get all windows in the session
+    local windows=$(tmux list-windows -t "$session_name" -F "#{window_index}:#{window_name}:#{pane_current_path}")
+    
+    local windows_array="[]"
+    local window_count=0
+    
+    while IFS= read -r window_info; do
+        if [ -n "$window_info" ]; then
+            local window_index=$(echo "$window_info" | cut -d: -f1)
+            local window_name=$(echo "$window_info" | cut -d: -f2)
+            local window_path=$(echo "$window_info" | cut -d: -f3)
+            
+            # Get panes for this window
+            local panes=$(tmux list-panes -t "$session_name:$window_index" -F "#{pane_index}:#{pane_current_path}:#{pane_current_command}")
+            local panes_array="[]"
+            local pane_count=0
+            
+            while IFS= read -r pane_info; do
+                if [ -n "$pane_info" ]; then
+                    local pane_index=$(echo "$pane_info" | cut -d: -f1)
+                    local pane_path=$(echo "$pane_info" | cut -d: -f2)
+                    local pane_command=$(echo "$pane_info" | cut -d: -f3)
+                    
+                    # Escape JSON strings
+                    pane_path=$(echo "$pane_path" | sed 's/"/\\"/g')
+                    pane_command=$(echo "$pane_command" | sed 's/"/\\"/g')
+                    
+                    if [ $pane_count -eq 0 ]; then
+                        panes_array="[{\"index\": $pane_index, \"path\": \"$pane_path\", \"command\": \"$pane_command\"}"
+                    else
+                        panes_array="$panes_array, {\"index\": $pane_index, \"path\": \"$pane_path\", \"command\": \"$pane_command\"}"
+                    fi
+                    pane_count=$((pane_count + 1))
+                fi
+            done <<< "$panes"
+            
+            panes_array="$panes_array]"
+            
+            # Escape JSON strings
+            window_name=$(echo "$window_name" | sed 's/"/\\"/g')
+            window_path=$(echo "$window_path" | sed 's/"/\\"/g')
+            
+            if [ $window_count -eq 0 ]; then
+                windows_array="[{\"index\": $window_index, \"name\": \"$window_name\", \"path\": \"$window_path\", \"panes\": $panes_array}]"
+            else
+                windows_array="$windows_array, {\"index\": $window_index, \"name\": \"$window_name\", \"path\": \"$window_path\", \"panes\": $panes_array}"
+            fi
+            window_count=$((window_count + 1))
+        fi
+    done <<< "$windows"
+    
+    # Create final JSON
+    local final_json="{
+        \"session_name\": \"$session_name\",
+        \"windows\": $windows_array,
+        \"created_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+    }"
+    
+    # Save to file
+    echo "$final_json" > "$session_file"
+    
+    log "Session '$session_name' saved successfully"
+}
+
+# Restore a tmux session
+restore_session() {
+    local session_name="$1"
+    
+    if [ -z "$session_name" ]; then
+        error "No session name provided"
+        exit 1
+    fi
+    
+    local session_file="$TMUX_SESSIONS_DIR/${session_name}.json"
+    
+    if [ ! -f "$session_file" ]; then
+        error "Session file '$session_file' not found"
+        exit 1
+    fi
+    
+    log "Restoring session '$session_name' from $session_file"
+    
+    # Check if session already exists
+    if tmux has-session -t "$session_name" 2>/dev/null; then
+        warn "Session '$session_name' already exists. Killing it first..."
+        tmux kill-session -t "$session_name"
+    fi
+    
+    # Parse JSON (using jq if available, otherwise basic parsing)
+    if command -v jq >/dev/null 2>&1; then
+        # Use jq for proper JSON parsing
+        local session_data=$(cat "$session_file")
+        local windows=$(echo "$session_data" | jq -r '.windows[] | @base64')
+        
+        # Create the session
+        tmux new-session -d -s "$session_name"
+        
+        while IFS= read -r window_data; do
+            if [ -n "$window_data" ]; then
+                local window_json=$(echo "$window_data" | base64 -d)
+                local window_index=$(echo "$window_json" | jq -r '.index')
+                local window_name=$(echo "$window_json" | jq -r '.name')
+                local window_path=$(echo "$window_json" | jq -r '.path')
+                local panes=$(echo "$window_json" | jq -r '.panes[] | @base64')
+                
+                # Create window if not the first one
+                if [ "$window_index" != "0" ]; then
+                    tmux new-window -t "$session_name:$window_index" -n "$window_name" -c "$window_path"
+                else
+                    # Rename the first window
+                    tmux rename-window -t "$session_name:0" "$window_name"
+                    tmux send-keys -t "$session_name:0" "cd '$window_path'" Enter
+                fi
+                
+                # Create additional panes
+                local pane_count=0
+                while IFS= read -r pane_data; do
+                    if [ -n "$pane_data" ]; then
+                        local pane_json=$(echo "$pane_data" | base64 -d)
+                        local pane_index=$(echo "$pane_json" | jq -r '.index')
+                        local pane_path=$(echo "$pane_json" | jq -r '.path')
+                        local pane_command=$(echo "$pane_json" | jq -r '.command')
+                        
+                        if [ "$pane_index" != "0" ]; then
+                            tmux split-window -t "$session_name:$window_index" -c "$pane_path"
+                            if [ "$pane_command" != "zsh" ] && [ "$pane_command" != "bash" ]; then
+                                tmux send-keys -t "$session_name:$window_index.$pane_index" "$pane_command" Enter
+                            fi
+                        else
+                            if [ "$pane_command" != "zsh" ] && [ "$pane_command" != "bash" ]; then
+                                tmux send-keys -t "$session_name:$window_index" "$pane_command" Enter
+                            fi
+                        fi
+                        pane_count=$((pane_count + 1))
+                    fi
+                done <<< "$panes"
+            fi
+        done <<< "$windows"
+        
+    else
+        # Basic JSON parsing without jq
+        warn "jq not found. Using basic JSON parsing (limited functionality)"
+        
+        # Extract session name and create session
+        local session_name_from_file=$(grep -o '"session_name": *"[^"]*"' "$session_file" | cut -d'"' -f4)
+        tmux new-session -d -s "$session_name_from_file"
+        
+        # Extract window information
+        local windows_section=$(sed -n '/"windows": \[/,/\]/p' "$session_file")
+        
+        # This is a simplified restoration without jq
+        log "Basic restoration completed. For full functionality, install jq: brew install jq"
+    fi
+    
+    log "Session '$session_name' restored successfully"
+    info "Attach to the session with: tmux attach-session -t '$session_name'"
+}
+
+# List saved sessions
+list_sessions() {
+    if [ ! -d "$TMUX_SESSIONS_DIR" ] || [ -z "$(ls -A "$TMUX_SESSIONS_DIR" 2>/dev/null)" ]; then
+        log "No saved sessions found"
+        return
+    fi
+    
+    log "Saved sessions:"
+    for session_file in "$TMUX_SESSIONS_DIR"/*.json; do
+        if [ -f "$session_file" ]; then
+            local session_name=$(basename "$session_file" .json)
+            local created_at=""
+            
+            if command -v jq >/dev/null 2>&1; then
+                created_at=$(jq -r '.created_at' "$session_file" 2>/dev/null || echo "unknown")
+            fi
+            
+            echo "  - $session_name (created: $created_at)"
+        fi
+    done
+}
+
+# Kill a saved session file
+kill_saved_session() {
+    local session_name="$1"
+    
+    if [ -z "$session_name" ]; then
+        error "No session name provided"
+        exit 1
+    fi
+    
+    local session_file="$TMUX_SESSIONS_DIR/${session_name}.json"
+    
+    if [ ! -f "$session_file" ]; then
+        error "Session file '$session_file' not found"
+        exit 1
+    fi
+    
+    rm "$session_file"
+    log "Saved session '$session_name' deleted"
+}
+
+# Show usage
+show_usage() {
+    cat << EOF
+Usage: $0 [COMMAND] [SESSION_NAME]
+
+Commands:
+  save [session_name]    Save a tmux session (uses current session if name not provided)
+  restore <session_name> Restore a saved tmux session
+  list                  List all saved sessions
+  kill <session_name>   Delete a saved session file
+  help                  Show this help message
+
+Examples:
+  $0 save                    # Save current session
+  $0 save my-project        # Save session named 'my-project'
+  $0 restore my-project     # Restore session named 'my-project'
+  $0 list                   # List all saved sessions
+  $0 kill my-project        # Delete saved session 'my-project'
+
+Session files are stored in: $TMUX_SESSIONS_DIR
+EOF
+}
+
+# Main script logic
+case "${1:-help}" in
+    "save")
+        save_session "$2"
+        ;;
+    "restore")
+        restore_session "$2"
+        ;;
+    "list")
+        list_sessions
+        ;;
+    "kill")
+        kill_saved_session "$2"
+        ;;
+    "help"|"-h"|"--help")
+        show_usage
+        ;;
+    *)
+        error "Unknown command: $1"
+        show_usage
+        exit 1
+        ;;
+esac 

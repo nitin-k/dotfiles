@@ -1,11 +1,23 @@
+### startup_commands {
+ls
+### }
+
+# Unset TMUX so every new shell starts clean; avoids nested-session warnings when running tmux new-session.
+unset TMUX
+
 ### oh-my-zsh {
 ZSH=$HOME/.oh-my-zsh
 ZSH_THEME="nk"
+#ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Red dots are displayed while waiting for completion
 COMPLETION_WAITING_DOTS="true"
 
 export GPG_TTY=`tty`
+
+# Don't auto-attach new terminals to existing tmux (stops "nested session" when you expected a plain shell)
+ZSH_TMUX_AUTOSTART=false
+ZSH_TMUX_AUTOCONNECT=false
 
 plugins=(ssh-agent tmux vundle)
 
@@ -21,6 +33,7 @@ unsetopt NOMATCH
 
 PATH_DIRECTORIES=(
   $HOME/bin
+  $HOME/.local/bin
   /usr/bin
   /bin
   /usr/sbin
@@ -42,8 +55,8 @@ if_program_installed() {
     which "$program" > /dev/null && eval $* || true
 }
 
-export VISUAL=vim
-export EDITOR=vim
+export VISUAL=nvim
+export EDITOR=nvim
 
 # Use Vim key bindings to edit the current shell command
 bindkey -v
@@ -103,7 +116,7 @@ case "$(uname -s)" in
     alias ls="ls -G"
     alias l="ls -GF"
 
-    export JAVA_HOME=$(/usr/libexec/java_home -v 15)
+    export JAVA_HOME=$(/usr/libexec/java_home -v 24)
 
     # /usr/local/bin should take precedence over /usr/bin
     PATH="/usr/local/bin:$PATH"
@@ -117,15 +130,16 @@ esac
 ### aliases {
 alias config="cd ~/git/dotfiles"
 
+
 alias hisgrep="history | grep"
 alias fname="find . -type f -name"
-alias vi="vim"
+alias vi="nvim"
 alias duh="du -chs"
-alias diff="colordiff"
+alias diff="difft"
 alias ag="ag --hidden --ignore-case"
 #alias filepath='echo `pwd`/`ls "$1"`'
 if_program_installed colordiff 'alias diff="colordiff -u"'
-if_program_installed tree 'alias tree="tree -C"'
+if_program_installed tree "alias tree='tree -C -I \"*.pyc|__pycache__|.git|node_modules|build\"'"
 if_program_installed ccat 'alias cat="ccat --bg=dark"'
 if_program_installed bat 'alias cat="bat"'
 if_program_installed exa 'alias ls="exa"'
@@ -216,13 +230,10 @@ precmd() {
 vif() {
     file=$({ git ls-files -oc --exclude-standard 2>/dev/null || find . -type f } | fzf)
     if [ ! -z "$file" ] ; then
-        vim $file
+        nvim $file
     fi
 }
 
-### startup_commands {
-ls
-### }
 
 ### fzf {
 if [ -f ~/.fzf.zsh ] ; then
@@ -246,19 +257,27 @@ fi
 export LESS=-RI
 
 export PATH="/usr/local/opt/freetds@0.91/bin:$PATH"
-eval "$(rbenv init -)"
+## eval "$(rbenv init -)"
 
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
+##eval "$(pyenv init --path)"
 
 
-export HOMEBREW_ARTIFACTORY_API_TOKEN=AKCp5ekcStqZ13pLqrXht6QDSxYcZ6NawqNYrgxTPSsYyM8DNCYeqkVdEpuzRHoQDjLtYg5TA
-export HOMEBREW_ARTIFACTORY_API_USER=skanigicharla
 export PATH="/usr/local/opt/ruby/bin:$PATH"
 
 source $HOME/.local_aliases
 
-#export NVM_DIR="$HOME/.nvm"
-#  [ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
-#  [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+export NVM_DIR="$HOME/.nvm"
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
+export PATH=$HOME/.toolbox/bin:$PATH
+eval "$(/opt/homebrew/bin/brew shellenv)"
+# Set up mise for runtime management
+eval "$(mise activate zsh)"
+source /Users/snitinka/.brazil_completion/zsh_completion
+export PATH=/opt/homebrew/bin:$PATH
+
+export PATH="$HOME/.jenv/bin:$PATH"
+eval "$(jenv init -)"
