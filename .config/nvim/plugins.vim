@@ -1,6 +1,6 @@
-" Install vim-plug if not found
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+" Install vim-plug if not found (same path as link.sh setup_vim_plug; ~/.vim also ok for Neovim rtp)
+if empty(glob('~/.local/share/nvim/site/autoload/plug.vim')) && empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 endif
 
@@ -39,6 +39,6 @@ Plug 'peitalin/vim-jsx-typescript'
 
 " Colorschemes
 Plug 'joedicastro/vim-molokai256'
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install' }
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug'] }
 
 call plug#end()
