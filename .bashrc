@@ -176,4 +176,4 @@ fi
 export PATH=$HOME/.toolbox/bin:$PATH
 eval "$(/opt/homebrew/bin/brew shellenv)"
 . "$HOME/.cargo/env"
-source /Users/snitinka/.brazil_completion/bash_completion 
+[[ -f "$HOME/.brazil_completion/bash_completion" ]] && . "$HOME/.brazil_completion/bash_completion"

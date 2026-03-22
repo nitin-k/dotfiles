@@ -116,7 +116,10 @@ case "$(uname -s)" in
     alias ls="ls -G"
     alias l="ls -GF"
 
-    export JAVA_HOME=$(/usr/libexec/java_home -v 24)
+    if _jh=$(/usr/libexec/java_home -v 24 2>/dev/null); then
+      export JAVA_HOME="$_jh"
+    fi
+    unset _jh
 
     # /usr/local/bin should take precedence over /usr/bin
     PATH="/usr/local/bin:$PATH"
@@ -266,7 +269,7 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 
 export PATH="/usr/local/opt/ruby/bin:$PATH"
 
-source $HOME/.local_aliases
+[[ -f "$HOME/.local_aliases" ]] && source "$HOME/.local_aliases"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
@@ -275,9 +278,13 @@ export NVM_DIR="$HOME/.nvm"
 export PATH=$HOME/.toolbox/bin:$PATH
 eval "$(/opt/homebrew/bin/brew shellenv)"
 # Set up mise for runtime management
-eval "$(mise activate zsh)"
-source /Users/snitinka/.brazil_completion/zsh_completion
+command -v mise &>/dev/null && eval "$(mise activate zsh)"
+
+[[ -f "$HOME/.brazil_completion/zsh_completion" ]] && source "$HOME/.brazil_completion/zsh_completion"
+
 export PATH=/opt/homebrew/bin:$PATH
 
-export PATH="$HOME/.jenv/bin:$PATH"
-eval "$(jenv init -)"
+if [[ -x "$HOME/.jenv/bin/jenv" ]] || command -v jenv &>/dev/null; then
+  export PATH="$HOME/.jenv/bin:$PATH"
+  eval "$(jenv init -)"
+fi
