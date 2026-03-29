@@ -1,0 +1,52 @@
+[
+  {
+    "context": "vim_mode == normal && !menu",
+    "bindings": {
+      // ; => : (command mode)
+      ";": "command_palette::Toggle",
+
+      // ,q => file finder (GotoFile)
+      ", q": "file_finder::Toggle",
+
+      // ,E => go to next diagnostic
+      ", E": [
+        "editor::GoToDiagnostic",
+        { "severity": { "min": "hint", "max": "error" } },
+      ],
+
+      // ,B => go back
+      ", B": "pane::GoBack",
+
+      // ,F => go forward
+      ", F": "pane::GoForward",
+
+      // ,l => reformat code
+      ", l": "editor::Format",
+
+      // ,r => rename symbol
+      ", r": "editor::Rename",
+
+      // ,f => find usages / go to references
+      ", f": "editor::FindAllReferences",
+
+      // ," => wrap word in double quotes
+      ", \"": [
+        "workspace::SendKeystrokes",
+        "v i w escape a \" escape h b i \" escape l e l",
+      ],
+
+      // ,' => wrap word in single quotes
+      ", '": [
+        "workspace::SendKeystrokes",
+        "v i w escape a ' escape h b i ' escape l e l",
+      ],
+    },
+  },
+  {
+    "context": "vim_mode == insert",
+    "bindings": {
+      // jk => escape to normal mode
+      "j k": "vim::NormalBefore",
+    },
+  },
+]
